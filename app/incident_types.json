@@ -1,0 +1,434 @@
+[
+    {
+        "id": "AED",
+        "name": "AED Alarm"
+    },
+    {
+        "id": "AC",
+        "name": "Aircraft Crash"
+    },
+    {
+        "id": "AE",
+        "name": "Aircraft Emergency"
+    },
+    {
+        "id": "AES",
+        "name": "Aircraft Emergency Standby"
+    },
+    {
+        "id": "OA",
+        "name": "Alarm"
+    },
+    {
+        "id": "AR",
+        "name": "Animal Rescue"
+    },
+    {
+        "id": "AF",
+        "name": "Appliance Fire"
+    },
+    {
+        "id": "AI",
+        "name": "Arson Investigation"
+    },
+    {
+        "id": "AA",
+        "name": "Auto Aid"
+    },
+    {
+        "id": "BT",
+        "name": "Bomb Threat"
+    },
+    {
+        "id": "BP",
+        "name": "Burn Permit"
+    },
+    {
+        "id": "CMA",
+        "name": "Carbon Monoxide"
+    },
+    {
+        "id": "CHIM",
+        "name": "Chimney Fire"
+    },
+    {
+        "id": "CR",
+        "name": "Cliff Rescue"
+    },
+    {
+        "id": "TCP",
+        "name": "Collision Involving Pedestrian"
+    },
+    {
+        "id": "TCS",
+        "name": "Collision Involving Structure"
+    },
+    {
+        "id": "TCT",
+        "name": "Collision Involving Train"
+    },
+    {
+        "id": "CF",
+        "name": "Commercial Fire"
+    },
+    {
+        "id": "CL",
+        "name": "Commercial Lockout"
+    },
+    {
+        "id": "CA",
+        "name": "Community Activity"
+    },
+    {
+        "id": "CP",
+        "name": "Community Paramedicine"
+    },
+    {
+        "id": "CSR",
+        "name": "Confined Space Rescue"
+    },
+    {
+        "id": "WF",
+        "name": "Confirmed Fire"
+    },
+    {
+        "id": "WSF",
+        "name": "Confirmed Structure Fire"
+    },
+    {
+        "id": "WVEG",
+        "name": "Confirmed Vegetation Fire"
+    },
+    {
+        "id": "CB",
+        "name": "Controlled Burn/Prescribed Fire"
+    },
+    {
+        "id": "EQ",
+        "name": "Earthquake"
+    },
+    {
+        "id": "EE",
+        "name": "Electrical Emergency"
+    },
+    {
+        "id": "ELF",
+        "name": "Electrical Fire"
+    },
+    {
+        "id": "ELR",
+        "name": "Elevator Rescue"
+    },
+    {
+        "id": "EER",
+        "name": "Elevator/Escalator Rescue"
+    },
+    {
+        "id": "EM",
+        "name": "Emergency"
+    },
+    {
+        "id": "ER",
+        "name": "Emergency Response"
+    },
+    {
+        "id": "TCE",
+        "name": "Expanded Traffic Collision"
+    },
+    {
+        "id": "EX",
+        "name": "Explosion"
+    },
+    {
+        "id": "EF",
+        "name": "Extinguished Fire"
+    },
+    {
+        "id": "FIRE",
+        "name": "Fire"
+    },
+    {
+        "id": "FA",
+        "name": "Fire Alarm"
+    },
+    {
+        "id": "FW",
+        "name": "Fire Watch"
+    },
+    {
+        "id": "FWI",
+        "name": "Fireworks Investigation"
+    },
+    {
+        "id": "FLW",
+        "name": "Flood Warning"
+    },
+    {
+        "id": "FL",
+        "name": "Flooding"
+    },
+    {
+        "id": "FULL",
+        "name": "Full Assignment"
+    },
+    {
+        "id": "GAS",
+        "name": "Gas Leak"
+    },
+    {
+        "id": "HC",
+        "name": "Hazardous Condition"
+    },
+    {
+        "id": "HMR",
+        "name": "Hazardous Response"
+    },
+    {
+        "id": "HMI",
+        "name": "Hazmat Investigation"
+    },
+    {
+        "id": "IR",
+        "name": "Ice Rescue"
+    },
+    {
+        "id": "IF",
+        "name": "Illegal Fire"
+    },
+    {
+        "id": "IA",
+        "name": "Industrial Accident"
+    },
+    {
+        "id": "IFT",
+        "name": "Interfacility Transfer"
+    },
+    {
+        "id": "INV",
+        "name": "Investigation"
+    },
+    {
+        "id": "LR",
+        "name": "Ladder Request"
+    },
+    {
+        "id": "LZ",
+        "name": "Landing Zone"
+    },
+    {
+        "id": "LA",
+        "name": "Lift Assist"
+    },
+    {
+        "id": "LO",
+        "name": "Lockout"
+    },
+    {
+        "id": "MA",
+        "name": "Manual Alarm"
+    },
+    {
+        "id": "MF",
+        "name": "Marine Fire"
+    },
+    {
+        "id": "ME",
+        "name": "Medical Emergency"
+    },
+    {
+        "id": "MC",
+        "name": "Move-up/Cover"
+    },
+    {
+        "id": "MCI",
+        "name": "Multi Casualty"
+    },
+    {
+        "id": "MU",
+        "name": "Mutual Aid"
+    },
+    {
+        "id": "NO",
+        "name": "Notification"
+    },
+    {
+        "id": "OI",
+        "name": "Odor Investigation"
+    },
+    {
+        "id": "OF",
+        "name": "Outside Fire"
+    },
+    {
+        "id": "PE",
+        "name": "Pipeline Emergency"
+    },
+    {
+        "id": "PF",
+        "name": "Pole Fire"
+    },
+    {
+        "id": "PA",
+        "name": "Police Assist"
+    },
+    {
+        "id": "PLE",
+        "name": "Powerline Emergency"
+    },
+    {
+        "id": "PS",
+        "name": "Public Service"
+    },
+    {
+        "id": "RTE",
+        "name": "Railroad/Train Emergency"
+    },
+    {
+        "id": "GF",
+        "name": "Refuse/Garbage Fire"
+    },
+    {
+        "id": "RES",
+        "name": "Rescue"
+    },
+    {
+        "id": "RF",
+        "name": "Residential Fire"
+    },
+    {
+        "id": "RL",
+        "name": "Residential Lockout"
+    },
+    {
+        "id": "RR",
+        "name": "Rope Rescue"
+    },
+    {
+        "id": "SH",
+        "name": "Sheared Hydrant"
+    },
+    {
+        "id": "SD",
+        "name": "Smoke Detector"
+    },
+    {
+        "id": "SI",
+        "name": "Smoke Investigation"
+    },
+    {
+        "id": "STBY",
+        "name": "Standby"
+    },
+    {
+        "id": "ST",
+        "name": "Strike Team/Task Force"
+    },
+    {
+        "id": "SC",
+        "name": "Structural Collapse"
+    },
+    {
+        "id": "SF",
+        "name": "Structure Fire"
+    },
+    {
+        "id": "TF",
+        "name": "Tank Fire"
+    },
+    {
+        "id": "TR",
+        "name": "Technical Rescue"
+    },
+    {
+        "id": "TEST",
+        "name": "Test"
+    },
+    {
+        "id": "TOW",
+        "name": "Tornado Warning"
+    },
+    {
+        "id": "TC",
+        "name": "Traffic Collision"
+    },
+    {
+        "id": "TRNG",
+        "name": "Training"
+    },
+    {
+        "id": "TE",
+        "name": "Transformer Explosion"
+    },
+    {
+        "id": "TD",
+        "name": "Tree Down"
+    },
+    {
+        "id": "TNR",
+        "name": "Trench Rescue"
+    },
+    {
+        "id": "TRBL",
+        "name": "Trouble Alarm"
+    },
+    {
+        "id": "TSW",
+        "name": "Tsunami Warning"
+    },
+    {
+        "id": "USAR",
+        "name": "Urban Search and Rescue"
+    },
+    {
+        "id": "VEG",
+        "name": "Vegetation Fire"
+    },
+    {
+        "id": "VF",
+        "name": "Vehicle Fire"
+    },
+    {
+        "id": "VL",
+        "name": "Vehicle Lockout"
+    },
+    {
+        "id": "VS",
+        "name": "Vessel Sinking"
+    },
+    {
+        "id": "WE",
+        "name": "Water Emergency"
+    },
+    {
+        "id": "WR",
+        "name": "Water Rescue"
+    },
+    {
+        "id": "WFA",
+        "name": "Waterflow Alarm"
+    },
+    {
+        "id": "WX",
+        "name": "Weather Incident"
+    },
+    {
+        "id": "WA",
+        "name": "Wires Arching"
+    },
+    {
+        "id": "WD",
+        "name": "Wires Down"
+    },
+    {
+        "id": "WDA",
+        "name": "Wires Down/Arcing"
+    },
+    {
+        "id": "WCF",
+        "name": "Working Commercial Fire"
+    },
+    {
+        "id": "WRF",
+        "name": "Working Residential Fire"
+    }
+]

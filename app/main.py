@@ -62,20 +62,13 @@ def get_incident_types_list():
     global INCIDENT_TYPES_CACHE
     if not INCIDENT_TYPES_CACHE:
         try:
-            with open('incident_types.txt', 'r') as f:
-                content = f.read()
-            INCIDENT_TYPES_CACHE = []
-            
-            # Parse <option value="AED" label="AED Alarm">
-            pattern = re.compile(r'<option value="([^"]+)" label="([^"]+)">')
-            matches = pattern.findall(content)
-            for val, label in matches:
-                INCIDENT_TYPES_CACHE.append({
-                    "id": val,
-                    "name": label
-                })
+            # Safely locate the json file inside the app directory
+            json_path = os.path.join(os.path.dirname(__file__), 'incident_types.json')
+            import json
+            with open(json_path, 'r') as f:
+                INCIDENT_TYPES_CACHE = json.load(f)
         except Exception as e:
-            print(f"Error reading incident types: {e}")
+            print(f"Error reading incident types json: {e}")
             INCIDENT_TYPES_CACHE = []
     return jsonify(INCIDENT_TYPES_CACHE)
 
