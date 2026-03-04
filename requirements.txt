@@ -1,0 +1,5 @@
+Flask==3.0.0
+requests==2.31.0
+pycryptodomex==3.19.0
+shapely==2.0.2
+apscheduler==3.10.4

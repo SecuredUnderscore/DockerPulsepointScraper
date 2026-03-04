@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block page_title %}Geofencing{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+
+<style>
+    #map {
+        height: 600px;
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Dark mode override for leaflet */
+    .leaflet-container {
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .leaflet-layer,
+    .leaflet-control-zoom-in,
+    .leaflet-control-zoom-out,
+    .leaflet-control-attribution {
+        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    }
+
+    .leaflet-draw-toolbar a {
+        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="padding-bottom: 0.5rem">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div>
+            <h2 style="margin: 0">Map Config</h2>
+            <p class="text-muted" style="margin-top: 0.25rem;">
+                Draw polygons to restrict the incidents you care about. If no polygons exist, incident locations are
+                ignored.
+            </p>
+        </div>
+        <button class="btn" onclick="savePolygons()">Save Boundaries</button>
+    </div>
+</div>
+
+<div id="map"></div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
+<script>
+    let appConfig = {};
+    let map;
+    let drawnItems;
+
+    async function initMap() {
+        appConfig = await fetchConfig();
+
+        // Initialize map
+        // Default to a central US view. If an agency is defined, it might make sense to geocode and zoom there, 
+        // but for now we default to a high-level view and the user can drag.
+        map = L.map('map').setView([39.8283, -98.5795], 4);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // FeatureGroup is to store editable layers
+        drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        // Load existing polygons from config
+        if (appConfig.polygons && appConfig.polygons.length > 0) {
+            const bounds = [];
+
+            appConfig.polygons.forEach(polyCoords => {
+                // Leaflet takes [lat, lon], while our python expected [lat, lon].
+                // The geo config we built saves: [[lat, lon], [lat, lon], ...]
+                const converted = polyCoords.map(coord => [parseFloat(coord[0]), parseFloat(coord[1])]);
+
+                const polygon = L.polygon(converted, {
+                    color: '#f23c4a',
+                    fillColor: '#f23c4a',
+                    fillOpacity: 0.2
+                });
+
+                drawnItems.addLayer(polygon);
+                bounds.push(...converted);
+            });
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds);
+            }
+        }
+
+        // Setup Draw Control
+        const drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems,
+                poly: { allowIntersection: false }
+            },
+            draw: {
+                polygon: {
+                    allowIntersection: false,
+                    showArea: true,
+                    shapeOptions: {
+                        color: '#f23c4a',
+                        fillColor: '#f23c4a',
+                        fillOpacity: 0.2
+                    }
+                },
+                polyline: false,
+                circle: false,
+                rectangle: false,
+                marker: false,
+                circlemarker: false
+            }
+        });
+        map.addControl(drawControl);
+
+        // Handle draw creation
+        map.on(L.Draw.Event.CREATED, function (event) {
+            const layer = event.layer;
+            drawnItems.addLayer(layer);
+        });
+    }
+
+    async function savePolygons() {
+        const polygonLayers = drawnItems.getLayers();
+        const polygonsToSave = [];
+
+        polygonLayers.forEach(layer => {
+            if (layer instanceof L.Polygon) {
+                const latlngs = layer.getLatLngs()[0]; // Outer ring
+                const coordsArray = latlngs.map(ll => [ll.lat, ll.lng]);
+                polygonsToSave.push(coordsArray);
+            }
+        });
+
+        appConfig.polygons = polygonsToSave;
+        await saveConfig(appConfig);
+    }
+
+    // Startup
+    initMap();
+</script>
+{% endblock %}

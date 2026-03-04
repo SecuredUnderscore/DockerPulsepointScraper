@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PulsePoint Scraper Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fa-solid fa-fire-burner"></i> PulseScrape</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/" {% if request.path == '/' %}class="active"{% endif %}><i class="fa-solid fa-house"></i> Dashboard</a></li>
+                <li><a href="/agencies" {% if request.path == '/agencies' %}class="active"{% endif %}><i class="fa-solid fa-building-shield"></i> Agencies</a></li>
+                <li><a href="/incident_types" {% if request.path == '/incident_types' %}class="active"{% endif %}><i class="fa-solid fa-clipboard-list"></i> Incident Types</a></li>
+                <li><a href="/map" {% if request.path == '/map' %}class="active"{% endif %}><i class="fa-solid fa-map-location-dot"></i> Geofencing</a></li>
+                <li><a href="/notifications" {% if request.path == '/notifications' %}class="active"{% endif %}><i class="fa-solid fa-bell"></i> Notifications</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                <div class="status-indicator">
+                    <span class="dot active"></span> Scraper Active
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Common utility to get/set config via the Flask API
+        async function fetchConfig() {
+            const res = await fetch('/api/config');
+            return await res.json();
+        }
+
+        async function saveConfig(configData) {
+            const res = await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(configData)
+            });
+            if (res.ok) {
+                showToast("Configuration Saved!", "success");
+            } else {
+                showToast("Failed to save config", "error");
+            }
+        }
+        
+        function showToast(message, type="success") {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation'}"></i> ${message}`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

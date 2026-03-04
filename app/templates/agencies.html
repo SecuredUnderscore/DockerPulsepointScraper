@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block page_title %}Agencies{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Monitored Agencies</h2>
+    <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
+        Add the 5-digit or alphanumeric ID for the Pulsepoint Agencies you want to monitor.
+    </p>
+
+    <div class="form-group" style="display: flex; gap: 1rem;">
+        <input type="text" id="agencyInput" list="agencyOptions" placeholder="Start typing an agency name..." />
+        <datalist id="agencyOptions"></datalist>
+        <button class="btn" onclick="addAgency()">Add Agency</button>
+    </div>
+
+    <div class="agency-list" id="agencyList" style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <!-- Filled by JS -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let appConfig = {};
+    let availableAgencies = [];
+
+    async function loadAgencies() {
+        appConfig = await fetchConfig();
+
+        try {
+            const res = await fetch('/api/agencies');
+            availableAgencies = await res.json();
+
+            // Populate datalist
+            const datalist = document.getElementById('agencyOptions');
+            datalist.innerHTML = '';
+            availableAgencies.forEach(ag => {
+                const opt = document.createElement('option');
+                opt.value = ag.Display1;
+                opt.textContent = `ID: ${ag.id}`;
+                datalist.appendChild(opt);
+            });
+        } catch (e) {
+            console.error("Failed to load available agencies", e);
+        }
+
+        renderAgencies();
+    }
+
+    function renderAgencies() {
+        const list = document.getElementById('agencyList');
+        list.innerHTML = '';
+
+        if (!appConfig.agencies || appConfig.agencies.length === 0) {
+            list.innerHTML = `<div class="input-box" style="text-align: center; color: var(--text-muted)">No agencies added yet.</div>`;
+            return;
+        }
+
+        appConfig.agencies.forEach((agencyId, index) => {
+            const item = document.createElement('div');
+            item.className = 'input-box';
+            item.style.display = 'flex';
+            item.style.justifyContent = 'space-between';
+            item.style.alignItems = 'center';
+
+            // Try to find full name
+            const found = availableAgencies.find(a => a.id === agencyId);
+            const displayName = found ? `${found.Display1} (${found.id})` : agencyId;
+
+            item.innerHTML = `
+                <span><i class="fa-solid fa-building-shield" style="color: var(--secondary); margin-right: 0.5rem"></i> <strong>${displayName}</strong></span>
+                <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem" onclick="removeAgency(${index})">
+                    <i class="fa-solid fa-trash" style="color: var(--primary)"></i>
+                </button>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    async function addAgency() {
+        const input = document.getElementById('agencyInput');
+        const val = input.value.trim();
+
+        if (!val) return;
+
+        // Find the matched agency id by name, or assume they typed the id directly
+        const matched = availableAgencies.find(a => a.Display1.toLowerCase() === val.toLowerCase() || a.id === val);
+        const finalId = matched ? matched.id : val;
+
+        if (!appConfig.agencies) appConfig.agencies = [];
+        if (!appConfig.agencies.includes(finalId)) {
+            appConfig.agencies.push(finalId);
+            input.value = '';
+            await saveConfig(appConfig);
+            renderAgencies();
+        } else {
+            showToast("Agency already exists", "error");
+        }
+    }
+
+    async function removeAgency(index) {
+        appConfig.agencies.splice(index, 1);
+        await saveConfig(appConfig);
+        renderAgencies();
+    }
+
+    // Init
+    loadAgencies();
+</script>
+{% endblock %}

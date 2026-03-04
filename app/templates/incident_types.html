@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block page_title %}Incident Types{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Monitored Incident Types</h2>
+    <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
+        Define which incident types trigger notifications. If this list is empty, ALL incident types from the agency
+        will be monitored.
+    </p>
+
+    <div class="form-group" style="display: flex; gap: 1rem;">
+        <input type="text" id="typeInput" list="typeOptions"
+            placeholder="Start typing an incident code or description..." />
+        <datalist id="typeOptions"></datalist>
+        <button class="btn" onclick="addType()">Add Type</button>
+    </div>
+
+    <div class="agency-list" id="typeList"
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+        <!-- Filled by JS -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let appConfig = {};
+    let availableTypes = [];
+
+    async function loadTypes() {
+        appConfig = await fetchConfig();
+
+        try {
+            const res = await fetch('/api/incident_types');
+            availableTypes = await res.json();
+
+            // Populate datalist
+            const datalist = document.getElementById('typeOptions');
+            datalist.innerHTML = '';
+            availableTypes.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = `${t.id} - ${t.name}`;
+                datalist.appendChild(opt);
+            });
+        } catch (e) {
+            console.error("Failed to load available incident types", e);
+        }
+
+        renderTypes();
+    }
+
+    function renderTypes() {
+        const list = document.getElementById('typeList');
+        list.innerHTML = '';
+
+        if (!appConfig.incidentTypes || appConfig.incidentTypes.length === 0) {
+            list.innerHTML = `<div class="input-box" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted)">Monitoring ALL types. Add a code to filter.</div>`;
+            return;
+        }
+
+        appConfig.incidentTypes.forEach((typeCode, index) => {
+            const item = document.createElement('div');
+            item.className = 'input-box';
+            item.style.display = 'flex';
+            item.style.justifyContent = 'space-between';
+            item.style.alignItems = 'center';
+
+            const found = availableTypes.find(t => t.id === typeCode);
+            const displayName = found ? `${found.id} - ${found.name}` : typeCode;
+
+            item.innerHTML = `
+                <span><i class="fa-solid fa-fire" style="color: var(--primary); margin-right: 0.5rem"></i> <strong>${displayName}</strong></span>
+                <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="removeType(${index})">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    async function addType() {
+        const input = document.getElementById('typeInput');
+        const val = input.value.trim();
+
+        if (!val) return;
+
+        // Value might be "SF - Structure Fire" or just "SF". Extract the first part.
+        let valCode = val.split('-')[0].trim().toUpperCase();
+
+        // Maybe length is too long if we somehow failed parse, just use original
+        if (valCode.length > 10) valCode = val.toUpperCase();
+
+        if (!appConfig.incidentTypes) appConfig.incidentTypes = [];
+        if (!appConfig.incidentTypes.includes(valCode)) {
+            appConfig.incidentTypes.push(valCode);
+            input.value = '';
+            await saveConfig(appConfig);
+            renderTypes();
+        } else {
+            showToast("Type already exists", "error");
+        }
+    }
+
+    async function removeType(index) {
+        appConfig.incidentTypes.splice(index, 1);
+        await saveConfig(appConfig);
+        renderTypes();
+    }
+
+    // Init
+    loadTypes();
+</script>
+{% endblock %}

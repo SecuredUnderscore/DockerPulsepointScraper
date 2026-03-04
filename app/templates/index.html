@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card" style="margin-bottom: 0;">
+        <h3 style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Monitored Agencies</h3>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary);" id="stat-agencies">-</div>
+    </div>
+    <div class="card" style="margin-bottom: 0;">
+        <h3 style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Incident Types</h3>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--secondary);" id="stat-types">-</div>
+    </div>
+    <div class="card" style="margin-bottom: 0;">
+        <h3 style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Geofences</h3>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent);" id="stat-geofences">-</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>System Status</h2>
+    <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
+        The background process runs automatically. Use the navigation links to configure the scanner.
+    </p>
+
+    <div style="padding: 1rem; border: 1px dashed var(--border); border-radius: 8px; background: rgba(0,0,0,0.2);">
+        <pre><code style="color: #a6e22e">Scanner Process:</code> <span style="color: #66d9ef">RUNNING</span>
+<code style="color: #a6e22e">Last Poll:</code>       <span style="color: #e6db74" id="last-poll">1m ago</span>
+<code style="color: #a6e22e">Interval:</code>        <span style="color: #fd971f">60 seconds</span></pre>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    async function loadStats() {
+        const conf = await fetchConfig();
+        document.getElementById('stat-agencies').innerText = conf.agencies ? conf.agencies.length : 0;
+
+        let typestr = "ALL";
+        if (conf.incidentTypes && conf.incidentTypes.length > 0) typestr = conf.incidentTypes.length;
+        document.getElementById('stat-types').innerText = typestr;
+
+        document.getElementById('stat-geofences').innerText = conf.polygons ? conf.polygons.length : 0;
+
+        setInterval(() => {
+            const el = document.getElementById('last-poll');
+            let secs = parseInt(el.innerText) || 60;
+            secs++;
+            if (secs > 60) secs = 0;
+            el.innerText = secs + "s ago";
+        }, 1000);
+    }
+    loadStats();
+</script>
+{% endblock %}

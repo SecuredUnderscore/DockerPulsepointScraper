@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block page_title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Discord</h2>
+    <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
+        Get notified in a Discord Channel via a webhook.
+    </p>
+
+    <div class="form-group">
+        <label>Webhook URL</label>
+        <input type="text" id="discordWebhookUrl" placeholder="https://discord.com/api/webhooks/..." />
+    </div>
+</div>
+
+<div class="card">
+    <h2>Pushover</h2>
+    <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
+        Get native Push Notifications to your phone using Pushover.
+    </p>
+
+    <div class="form-group">
+        <label>User Key</label>
+        <input type="text" id="pushoverUserKey" placeholder="uXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" />
+    </div>
+
+    <div class="form-group">
+        <label>App Token</label>
+        <input type="text" id="pushoverAppToken" placeholder="aXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" />
+    </div>
+</div>
+
+<div class="card">
+    <h2>Notification Rules</h2>
+    <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
+        You will receive a notification when a new incident is discovered. Additionally, you will receive an escalation
+        notification when the number of dispatched units exceeds this threshold.
+    </p>
+
+    <div class="form-group">
+        <label>Vehicle Threshold (Escalation)</label>
+        <input type="number" id="vehicleThreshold" placeholder="5" value="5" min="2" max="50" />
+    </div>
+</div>
+
+<button class="btn" style="width: 100%" onclick="saveNotifs()">Save Notifications</button>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let appConfig = {};
+
+    async function loadNotifs() {
+        appConfig = await fetchConfig();
+        if (!appConfig.notifications) {
+            appConfig.notifications = {
+                discordWebhookUrl: "",
+                pushoverUserKey: "",
+                pushoverAppToken: "",
+                vehicleThreshold: 5
+            };
+        }
+
+        document.getElementById('discordWebhookUrl').value = appConfig.notifications.discordWebhookUrl || "";
+        document.getElementById('pushoverUserKey').value = appConfig.notifications.pushoverUserKey || "";
+        document.getElementById('pushoverAppToken').value = appConfig.notifications.pushoverAppToken || "";
+        document.getElementById('vehicleThreshold').value = appConfig.notifications.vehicleThreshold || 5;
+    }
+
+    async function saveNotifs() {
+        appConfig.notifications = {
+            discordWebhookUrl: document.getElementById('discordWebhookUrl').value.trim(),
+            pushoverUserKey: document.getElementById('pushoverUserKey').value.trim(),
+            pushoverAppToken: document.getElementById('pushoverAppToken').value.trim(),
+            vehicleThreshold: parseInt(document.getElementById('vehicleThreshold').value) || 5
+        };
+
+        await saveConfig(appConfig);
+    }
+
+    loadNotifs();
+</script>
+{% endblock %}
