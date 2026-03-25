@@ -1,4 +1,6 @@
 import time
+import logging
+from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.pulsepoint import get_incidents
 from app.config_manager import load_config
@@ -28,7 +30,7 @@ def process_incidents():
         return
         
     for agency_id in agencies:
-        print(f"Scraping {agency_id}...")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Scraping {agency_id}...")
         res = get_incidents(agency_id)
         
         # Structure is usually: {"incidents": {"active": [ ... ]}}
@@ -90,9 +92,12 @@ def process_incidents():
             # Keep highest count
             if active_units_count > state['reported_units']:
                 state['reported_units'] = active_units_count
+# Keep a module-level reference so the scheduler isn't garbage collected
+_scheduler = None
 
 def start_scheduler():
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(process_incidents, 'interval', minutes=1)
-    scheduler.start()
+    global _scheduler
+    _scheduler = BackgroundScheduler()
+    _scheduler.add_job(process_incidents, 'interval', minutes=1)
+    _scheduler.start()
     print("Scraper background scheduler started!")
