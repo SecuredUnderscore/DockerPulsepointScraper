@@ -39,7 +39,7 @@
             availableAgencies.forEach(ag => {
                 const opt = document.createElement('option');
                 opt.value = ag.Display1;
-                opt.textContent = `ID: ${ag.id}`;
+                opt.textContent = `ID: ${ag.agencyid}`;
                 datalist.appendChild(opt);
             });
         } catch (e) {
@@ -66,8 +66,8 @@
             item.style.alignItems = 'center';
 
             // Try to find full name
-            const found = availableAgencies.find(a => a.id === agencyId);
-            const displayName = found ? `${found.Display1} (${found.id})` : agencyId;
+            const found = availableAgencies.find(a => a.agencyid === agencyId);
+            const displayName = found ? `${found.Display1} (${found.agencyid})` : agencyId;
 
             item.innerHTML = `
                 <span><i class="fa-solid fa-building-shield" style="color: var(--secondary); margin-right: 0.5rem"></i> <strong>${displayName}</strong></span>
@@ -86,8 +86,8 @@
         if (!val) return;
 
         // Find the matched agency id by name, or assume they typed the id directly
-        const matched = availableAgencies.find(a => a.Display1.toLowerCase() === val.toLowerCase() || a.id === val);
-        const finalId = matched ? matched.id : val;
+        const matched = availableAgencies.find(a => a.Display1.toLowerCase() === val.toLowerCase() || a.agencyid === val);
+        const finalId = matched ? matched.agencyid : val;
 
         if (!appConfig.agencies) appConfig.agencies = [];
         if (!appConfig.agencies.includes(finalId)) {

@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, jsonify
-from app.scraper import start_scheduler
+from app.scraper import start_scheduler, process_incidents
 from app.config_manager import load_config, save_config
 from app.pulsepoint import search_agencies
 
@@ -8,6 +8,8 @@ app = Flask(__name__)
 
 # Start background scraper
 start_scheduler()
+# Run first scrape immediately instead of waiting for the 1-minute interval
+process_incidents()
 
 # Global caches
 AGENCIES_CACHE = None

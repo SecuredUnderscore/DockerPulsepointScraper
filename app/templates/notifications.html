@@ -30,6 +30,70 @@
         <label>App Token</label>
         <input type="text" id="pushoverAppToken" placeholder="aXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" />
     </div>
+
+    <div class="form-group">
+        <label>Normal Priority Sound</label>
+        <select id="pushoverSoundNormal">
+            <option value="pushover">Pushover (default)</option>
+            <option value="bike">Bike</option>
+            <option value="bugle">Bugle</option>
+            <option value="cashregister">Cash Register</option>
+            <option value="classical">Classical</option>
+            <option value="cosmic">Cosmic</option>
+            <option value="falling">Falling</option>
+            <option value="gamelan">Gamelan</option>
+            <option value="incoming">Incoming</option>
+            <option value="intermission">Intermission</option>
+            <option value="magic">Magic</option>
+            <option value="mechanical">Mechanical</option>
+            <option value="pianobar">Piano Bar</option>
+            <option value="siren">Siren</option>
+            <option value="spacealarm">Space Alarm</option>
+            <option value="tugboat">Tug Boat</option>
+            <option value="alien">Alien Alarm (long)</option>
+            <option value="climb">Climb (long)</option>
+            <option value="persistent">Persistent (long)</option>
+            <option value="echo">Pushover Echo (long)</option>
+            <option value="updown">Up Down (long)</option>
+            <option value="vibrate">Vibrate Only</option>
+            <option value="none">None (silent)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>High Priority Sound <span class="text-muted" style="font-weight: normal;">(Helicopter / Escalation)</span></label>
+        <select id="pushoverSoundHigh">
+            <option value="siren">Siren</option>
+            <option value="pushover">Pushover (default)</option>
+            <option value="bike">Bike</option>
+            <option value="bugle">Bugle</option>
+            <option value="cashregister">Cash Register</option>
+            <option value="classical">Classical</option>
+            <option value="cosmic">Cosmic</option>
+            <option value="falling">Falling</option>
+            <option value="gamelan">Gamelan</option>
+            <option value="incoming">Incoming</option>
+            <option value="intermission">Intermission</option>
+            <option value="magic">Magic</option>
+            <option value="mechanical">Mechanical</option>
+            <option value="pianobar">Piano Bar</option>
+            <option value="spacealarm">Space Alarm</option>
+            <option value="tugboat">Tug Boat</option>
+            <option value="alien">Alien Alarm (long)</option>
+            <option value="climb">Climb (long)</option>
+            <option value="persistent">Persistent (long)</option>
+            <option value="echo">Pushover Echo (long)</option>
+            <option value="updown">Up Down (long)</option>
+            <option value="vibrate">Vibrate Only</option>
+            <option value="none">None (silent)</option>
+        </select>
+    </div>
+
+    <small class="text-muted">
+        <a href="https://pushover.net/api#sounds" target="_blank" style="color: var(--secondary);">
+            <i class="fa-solid fa-volume-high" style="margin-right: 0.3rem;"></i>Preview sounds on Pushover.net
+        </a>
+    </small>
 </div>
 
 <div class="card">
@@ -43,9 +107,103 @@
         <label>Vehicle Threshold (Escalation)</label>
         <input type="number" id="vehicleThreshold" placeholder="5" value="5" min="2" max="50" />
     </div>
+
+    <div class="form-group">
+        <label>Timezone</label>
+        <select id="timezone">
+            <option value="America/Vancouver">Pacific (America/Vancouver)</option>
+            <option value="America/Edmonton">Mountain (America/Edmonton)</option>
+            <option value="America/Winnipeg">Central (America/Winnipeg)</option>
+            <option value="America/Toronto">Eastern (America/Toronto)</option>
+            <option value="America/Halifax">Atlantic (America/Halifax)</option>
+            <option value="America/St_Johns">Newfoundland (America/St_Johns)</option>
+            <option value="America/New_York">US Eastern (America/New_York)</option>
+            <option value="America/Chicago">US Central (America/Chicago)</option>
+            <option value="America/Denver">US Mountain (America/Denver)</option>
+            <option value="America/Los_Angeles">US Pacific (America/Los_Angeles)</option>
+            <option value="UTC">UTC</option>
+        </select>
+    </div>
+</div>
+
+<div class="card">
+    <h2><i class="fa-solid fa-helicopter" style="color: var(--secondary); margin-right: 0.5rem;"></i>Helicopter Alert</h2>
+    <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
+        Receive a special notification when a helicopter unit is dispatched to an incident.
+        Configure the character pattern used in unit IDs to identify helicopters (e.g. "S" matches units like 1S41N, 3S41).
+    </p>
+
+    <div class="form-group" style="display: flex; align-items: center; gap: 1rem;">
+        <label class="toggle-label" for="helicopterEnabled" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0;">
+            <div class="toggle-switch">
+                <input type="checkbox" id="helicopterEnabled" />
+                <span class="toggle-slider"></span>
+            </div>
+            <span>Enable Helicopter Alerts</span>
+        </label>
+    </div>
+
+    <div class="form-group" id="heliPatternGroup">
+        <label>Unit ID Pattern Character</label>
+        <input type="text" id="helicopterPattern" placeholder="S" maxlength="5" style="max-width: 150px;" />
+        <small class="text-muted" style="display: block; margin-top: 0.5rem;">
+            The character(s) that identify helicopter units (e.g. "S" matches 1S41N). Matched after a digit in the unit ID.
+        </small>
+    </div>
 </div>
 
 <button class="btn" style="width: 100%" onclick="saveNotifs()">Save Notifications</button>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .toggle-switch {
+        position: relative;
+        width: 48px;
+        height: 26px;
+        flex-shrink: 0;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: var(--bg-light, #2a2a3e);
+        border: 2px solid var(--border, #333);
+        border-radius: 26px;
+        transition: 0.3s;
+    }
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 2px;
+        bottom: 2px;
+        background-color: var(--text-muted, #888);
+        border-radius: 50%;
+        transition: 0.3s;
+    }
+    .toggle-switch input:checked + .toggle-slider {
+        background-color: var(--primary, #e74c3c);
+        border-color: var(--primary, #e74c3c);
+    }
+    .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(22px);
+        background-color: #fff;
+    }
+    #heliPatternGroup {
+        transition: opacity 0.3s;
+    }
+    #heliPatternGroup.disabled {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -59,22 +217,62 @@
                 discordWebhookUrl: "",
                 pushoverUserKey: "",
                 pushoverAppToken: "",
-                vehicleThreshold: 5
+                vehicleThreshold: 5,
+                timezone: "America/Vancouver",
+                pushoverSoundNormal: "pushover",
+                pushoverSoundHigh: "siren",
+                helicopterAlert: { enabled: false, unitPattern: "S" }
             };
         }
 
-        document.getElementById('discordWebhookUrl').value = appConfig.notifications.discordWebhookUrl || "";
-        document.getElementById('pushoverUserKey').value = appConfig.notifications.pushoverUserKey || "";
-        document.getElementById('pushoverAppToken').value = appConfig.notifications.pushoverAppToken || "";
-        document.getElementById('vehicleThreshold').value = appConfig.notifications.vehicleThreshold || 5;
+        const notif = appConfig.notifications;
+        document.getElementById('discordWebhookUrl').value = notif.discordWebhookUrl || "";
+        document.getElementById('pushoverUserKey').value = notif.pushoverUserKey || "";
+        document.getElementById('pushoverAppToken').value = notif.pushoverAppToken || "";
+        document.getElementById('vehicleThreshold').value = notif.vehicleThreshold || 5;
+
+        // Timezone
+        const tzSelect = document.getElementById('timezone');
+        const savedTz = notif.timezone || "America/Vancouver";
+        if (tzSelect.querySelector(`option[value="${savedTz}"]`)) {
+            tzSelect.value = savedTz;
+        }
+
+        // Pushover Sounds
+        document.getElementById('pushoverSoundNormal').value = notif.pushoverSoundNormal || "pushover";
+        document.getElementById('pushoverSoundHigh').value = notif.pushoverSoundHigh || "siren";
+
+        // Helicopter
+        const heli = notif.helicopterAlert || {};
+        document.getElementById('helicopterEnabled').checked = heli.enabled || false;
+        document.getElementById('helicopterPattern').value = heli.unitPattern || "S";
+        updateHeliPatternVisibility();
     }
+
+    function updateHeliPatternVisibility() {
+        const enabled = document.getElementById('helicopterEnabled').checked;
+        document.getElementById('heliPatternGroup').classList.toggle('disabled', !enabled);
+    }
+
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'helicopterEnabled') {
+            updateHeliPatternVisibility();
+        }
+    });
 
     async function saveNotifs() {
         appConfig.notifications = {
             discordWebhookUrl: document.getElementById('discordWebhookUrl').value.trim(),
             pushoverUserKey: document.getElementById('pushoverUserKey').value.trim(),
             pushoverAppToken: document.getElementById('pushoverAppToken').value.trim(),
-            vehicleThreshold: parseInt(document.getElementById('vehicleThreshold').value) || 5
+            vehicleThreshold: parseInt(document.getElementById('vehicleThreshold').value) || 5,
+            timezone: document.getElementById('timezone').value,
+            pushoverSoundNormal: document.getElementById('pushoverSoundNormal').value,
+            pushoverSoundHigh: document.getElementById('pushoverSoundHigh').value,
+            helicopterAlert: {
+                enabled: document.getElementById('helicopterEnabled').checked,
+                unitPattern: document.getElementById('helicopterPattern').value.trim() || "S"
+            }
         };
 
         await saveConfig(appConfig);

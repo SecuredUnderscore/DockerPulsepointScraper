@@ -11,7 +11,14 @@ DEFAULT_CONFIG = {
         "discordWebhookUrl": "",
         "pushoverUserKey": "",
         "pushoverAppToken": "",
-        "vehicleThreshold": 5
+        "vehicleThreshold": 5,
+        "timezone": "America/Vancouver",
+        "pushoverSoundNormal": "pushover",
+        "pushoverSoundHigh": "siren",
+        "helicopterAlert": {
+            "enabled": False,
+            "unitPattern": "S"
+        }
     }
 }
 
