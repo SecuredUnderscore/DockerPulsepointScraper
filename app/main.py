@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, jsonify
-from app.scraper import start_scheduler, process_incidents
+from app.scraper import start_scheduler, process_incidents, restart_scheduler
 from app.config_manager import load_config, save_config
 from app.pulsepoint import search_agencies
 
@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 # Start background scraper
 start_scheduler()
-# Run first scrape immediately instead of waiting for the 1-minute interval
+# Run first scrape immediately instead of waiting for the interval
 process_incidents()
 
 # Global caches
@@ -46,8 +46,13 @@ def get_config():
 def update_config():
     data = request.json
     save_config(data)
+    # Restart scheduler if interval might have changed
+    try:
+        restart_scheduler()
+    except Exception as e:
+        print(f"Error restarting scheduler: {e}")
     return jsonify({"status": "success"})
-    
+
 @app.route('/api/agencies', methods=['GET'])
 def get_agencies_list():
     global AGENCIES_CACHE
@@ -56,7 +61,7 @@ def get_agencies_list():
         res = search_agencies()
         AGENCIES_CACHE = res.get('searchagencies', [])
     return jsonify(AGENCIES_CACHE)
-    
+
 import re
 
 @app.route('/api/incident_types', methods=['GET'])

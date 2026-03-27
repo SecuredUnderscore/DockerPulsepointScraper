@@ -31,64 +31,6 @@
         <input type="text" id="pushoverAppToken" placeholder="aXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" />
     </div>
 
-    <div class="form-group">
-        <label>Normal Priority Sound</label>
-        <select id="pushoverSoundNormal">
-            <option value="pushover">Pushover (default)</option>
-            <option value="bike">Bike</option>
-            <option value="bugle">Bugle</option>
-            <option value="cashregister">Cash Register</option>
-            <option value="classical">Classical</option>
-            <option value="cosmic">Cosmic</option>
-            <option value="falling">Falling</option>
-            <option value="gamelan">Gamelan</option>
-            <option value="incoming">Incoming</option>
-            <option value="intermission">Intermission</option>
-            <option value="magic">Magic</option>
-            <option value="mechanical">Mechanical</option>
-            <option value="pianobar">Piano Bar</option>
-            <option value="siren">Siren</option>
-            <option value="spacealarm">Space Alarm</option>
-            <option value="tugboat">Tug Boat</option>
-            <option value="alien">Alien Alarm (long)</option>
-            <option value="climb">Climb (long)</option>
-            <option value="persistent">Persistent (long)</option>
-            <option value="echo">Pushover Echo (long)</option>
-            <option value="updown">Up Down (long)</option>
-            <option value="vibrate">Vibrate Only</option>
-            <option value="none">None (silent)</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>High Priority Sound <span class="text-muted" style="font-weight: normal;">(Helicopter / Escalation)</span></label>
-        <select id="pushoverSoundHigh">
-            <option value="siren">Siren</option>
-            <option value="pushover">Pushover (default)</option>
-            <option value="bike">Bike</option>
-            <option value="bugle">Bugle</option>
-            <option value="cashregister">Cash Register</option>
-            <option value="classical">Classical</option>
-            <option value="cosmic">Cosmic</option>
-            <option value="falling">Falling</option>
-            <option value="gamelan">Gamelan</option>
-            <option value="incoming">Incoming</option>
-            <option value="intermission">Intermission</option>
-            <option value="magic">Magic</option>
-            <option value="mechanical">Mechanical</option>
-            <option value="pianobar">Piano Bar</option>
-            <option value="spacealarm">Space Alarm</option>
-            <option value="tugboat">Tug Boat</option>
-            <option value="alien">Alien Alarm (long)</option>
-            <option value="climb">Climb (long)</option>
-            <option value="persistent">Persistent (long)</option>
-            <option value="echo">Pushover Echo (long)</option>
-            <option value="updown">Up Down (long)</option>
-            <option value="vibrate">Vibrate Only</option>
-            <option value="none">None (silent)</option>
-        </select>
-    </div>
-
     <small class="text-muted">
         <a href="https://pushover.net/api#sounds" target="_blank" style="color: var(--secondary);">
             <i class="fa-solid fa-volume-high" style="margin-right: 0.3rem;"></i>Preview sounds on Pushover.net
@@ -97,11 +39,18 @@
 </div>
 
 <div class="card">
-    <h2>Notification Rules</h2>
+    <h2><i class="fa-solid fa-sliders" style="color: var(--secondary); margin-right: 0.5rem;"></i>Scheduler & Rules</h2>
     <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
-        You will receive a notification when a new incident is discovered. Additionally, you will receive an escalation
-        notification when the number of dispatched units exceeds this threshold.
+        Configure how often the API is polled and escalation rules.
     </p>
+
+    <div class="form-group">
+        <label>Check Interval (seconds)</label>
+        <input type="number" id="checkIntervalSeconds" placeholder="60" value="60" min="20" max="300" />
+        <small class="text-muted" style="display: block; margin-top: 0.5rem;">
+            How often to poll the PulsePoint API. Minimum 20 seconds, default 60.
+        </small>
+    </div>
 
     <div class="form-group">
         <label>Vehicle Threshold (Escalation)</label>
@@ -126,30 +75,103 @@
     </div>
 </div>
 
+<!-- Alert Type Cards -->
 <div class="card">
-    <h2><i class="fa-solid fa-helicopter" style="color: var(--secondary); margin-right: 0.5rem;"></i>Helicopter Alert</h2>
+    <h2><i class="fa-solid fa-bell" style="color: var(--primary); margin-right: 0.5rem;"></i>Alert Types</h2>
     <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
-        Receive a special notification when a helicopter unit is dispatched to an incident.
-        Configure the character pattern used in unit IDs to identify helicopters (e.g. "S" matches units like 1S41N, 3S41).
+        Configure which alert types are enabled and their Pushover notification sounds independently.
     </p>
 
-    <div class="form-group" style="display: flex; align-items: center; gap: 1rem;">
-        <label class="toggle-label" for="helicopterEnabled" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0;">
-            <div class="toggle-switch">
-                <input type="checkbox" id="helicopterEnabled" />
-                <span class="toggle-slider"></span>
+    <!-- New Incident Alert -->
+    <div class="alert-type-card">
+        <div class="alert-type-header">
+            <div class="alert-type-info">
+                <span class="alert-icon" style="background: rgba(255, 0, 0, 0.15); color: #ff4444;">🔴</span>
+                <div>
+                    <h3>New Incident</h3>
+                    <small class="text-muted">Triggered when a new matching incident is discovered.</small>
+                </div>
             </div>
-            <span>Enable Helicopter Alerts</span>
-        </label>
+            <label class="toggle-label" for="alertNewEnabled" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0;">
+                <div class="toggle-switch">
+                    <input type="checkbox" id="alertNewEnabled" checked />
+                    <span class="toggle-slider"></span>
+                </div>
+            </label>
+        </div>
+        <div class="alert-type-options" id="alertNewOptions">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Pushover Sound</label>
+                <select id="alertNewSound" class="pushover-sound-select"></select>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group" id="heliPatternGroup">
-        <label>Unit ID Pattern Character</label>
-        <input type="text" id="helicopterPattern" placeholder="S" maxlength="5" style="max-width: 150px;" />
-        <small class="text-muted" style="display: block; margin-top: 0.5rem;">
-            The character(s) that identify helicopter units (e.g. "S" matches 1S41N). Matched after a digit in the unit ID.
-        </small>
+    <!-- Escalation Alert -->
+    <div class="alert-type-card">
+        <div class="alert-type-header">
+            <div class="alert-type-info">
+                <span class="alert-icon" style="background: rgba(255, 170, 0, 0.15); color: #ffaa00;">⚠️</span>
+                <div>
+                    <h3>Escalation</h3>
+                    <small class="text-muted">Triggered when dispatched units exceed the vehicle threshold.</small>
+                </div>
+            </div>
+            <label class="toggle-label" for="alertEscalationEnabled" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0;">
+                <div class="toggle-switch">
+                    <input type="checkbox" id="alertEscalationEnabled" checked />
+                    <span class="toggle-slider"></span>
+                </div>
+            </label>
+        </div>
+        <div class="alert-type-options" id="alertEscalationOptions">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Pushover Sound</label>
+                <select id="alertEscalationSound" class="pushover-sound-select"></select>
+            </div>
+        </div>
     </div>
+
+    <!-- Special Unit Alert -->
+    <div class="alert-type-card">
+        <div class="alert-type-header">
+            <div class="alert-type-info">
+                <span class="alert-icon" style="background: rgba(255, 140, 0, 0.15); color: #ff8c00;">🚨</span>
+                <div>
+                    <h3>Special Unit</h3>
+                    <small class="text-muted">Triggered when a unit type marked as "Special Alert" is dispatched.</small>
+                </div>
+            </div>
+            <label class="toggle-label" for="alertSpecialEnabled" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0;">
+                <div class="toggle-switch">
+                    <input type="checkbox" id="alertSpecialEnabled" checked />
+                    <span class="toggle-slider"></span>
+                </div>
+            </label>
+        </div>
+        <div class="alert-type-options" id="alertSpecialOptions">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Pushover Sound</label>
+                <select id="alertSpecialSound" class="pushover-sound-select"></select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Unit Types Configuration -->
+<div class="card">
+    <h2><i class="fa-solid fa-tags" style="color: var(--accent); margin-right: 0.5rem;"></i>Unit Types</h2>
+    <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
+        Define unit type patterns to classify dispatched units. The pattern character is matched after a digit in the
+        unit ID (e.g. pattern "S" matches "1S40D", "5S31"). Types marked as "Special Alert" will trigger an additional
+        notification.
+    </p>
+
+    <div id="unitTypesList"></div>
+
+    <button class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;" onclick="addUnitType()">
+        <i class="fa-solid fa-plus" style="margin-right: 0.5rem;"></i>Add Unit Type
+    </button>
 </div>
 
 <button class="btn" style="width: 100%" onclick="saveNotifs()">Save Notifications</button>
@@ -196,21 +218,247 @@
         transform: translateX(22px);
         background-color: #fff;
     }
-    #heliPatternGroup {
-        transition: opacity 0.3s;
+
+    /* Alert Type Cards */
+    .alert-type-card {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+        transition: border-color 0.2s;
     }
-    #heliPatternGroup.disabled {
+    .alert-type-card:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+    .alert-type-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .alert-type-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .alert-type-info h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.1rem;
+    }
+    .alert-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    .alert-type-options {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        transition: opacity 0.3s, max-height 0.3s;
+    }
+    .alert-type-options.disabled {
         opacity: 0.4;
         pointer-events: none;
+    }
+
+    /* Unit Type Row */
+    .unit-type-row {
+        display: grid;
+        grid-template-columns: 80px 1fr 70px auto auto;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        transition: border-color 0.2s;
+    }
+    .unit-type-row:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+    .unit-type-row input,
+    .unit-type-row select {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 0.5rem 0.65rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+    }
+    .unit-type-row input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+    .unit-type-special {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+    .unit-type-special input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+        cursor: pointer;
+    }
+    .unit-type-delete {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0.35rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+        font-size: 1rem;
+    }
+    .unit-type-delete:hover {
+        background: rgba(255, 60, 60, 0.2);
+        color: var(--primary);
+    }
+    .unit-type-header {
+        display: grid;
+        grid-template-columns: 80px 1fr 70px auto auto;
+        gap: 0.75rem;
+        padding: 0 1rem 0.5rem 1rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Select styling */
+    select, .pushover-sound-select {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+    select:focus {
+        outline: none;
+        border-color: var(--primary);
     }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    const PUSHOVER_SOUNDS = [
+        { value: "pushover", label: "Pushover (default)" },
+        { value: "bike", label: "Bike" },
+        { value: "bugle", label: "Bugle" },
+        { value: "cashregister", label: "Cash Register" },
+        { value: "classical", label: "Classical" },
+        { value: "cosmic", label: "Cosmic" },
+        { value: "falling", label: "Falling" },
+        { value: "gamelan", label: "Gamelan" },
+        { value: "incoming", label: "Incoming" },
+        { value: "intermission", label: "Intermission" },
+        { value: "magic", label: "Magic" },
+        { value: "mechanical", label: "Mechanical" },
+        { value: "pianobar", label: "Piano Bar" },
+        { value: "siren", label: "Siren" },
+        { value: "spacealarm", label: "Space Alarm" },
+        { value: "tugboat", label: "Tug Boat" },
+        { value: "alien", label: "Alien Alarm (long)" },
+        { value: "climb", label: "Climb (long)" },
+        { value: "persistent", label: "Persistent (long)" },
+        { value: "echo", label: "Pushover Echo (long)" },
+        { value: "updown", label: "Up Down (long)" },
+        { value: "vibrate", label: "Vibrate Only" },
+        { value: "none", label: "None (silent)" }
+    ];
+
+    function populateSoundSelects() {
+        document.querySelectorAll('.pushover-sound-select').forEach(sel => {
+            if (sel.options.length > 0) return;
+            PUSHOVER_SOUNDS.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.value;
+                opt.textContent = s.label;
+                sel.appendChild(opt);
+            });
+        });
+    }
+
     let appConfig = {};
+    let unitTypes = [];
+
+    function renderUnitTypes() {
+        const container = document.getElementById('unitTypesList');
+        container.innerHTML = '';
+
+        if (unitTypes.length === 0) {
+            container.innerHTML = '<p class="text-muted" style="text-align: center; padding: 1rem;">No unit types defined. Click "Add Unit Type" to get started.</p>';
+            return;
+        }
+
+        // Header row
+        const header = document.createElement('div');
+        header.className = 'unit-type-header';
+        header.innerHTML = '<span>Pattern</span><span>Label</span><span>Emoji</span><span>Special</span><span></span>';
+        container.appendChild(header);
+
+        unitTypes.forEach((ut, idx) => {
+            const row = document.createElement('div');
+            row.className = 'unit-type-row';
+            row.innerHTML = `
+                <input type="text" value="${ut.pattern || ''}" placeholder="S" maxlength="5"
+                       onchange="unitTypes[${idx}].pattern = this.value" />
+                <input type="text" value="${ut.label || ''}" placeholder="Helicopter"
+                       onchange="unitTypes[${idx}].label = this.value" />
+                <input type="text" value="${ut.emoji || ''}" placeholder="🚁" maxlength="4"
+                       onchange="unitTypes[${idx}].emoji = this.value" />
+                <label class="unit-type-special">
+                    <input type="checkbox" ${ut.specialAlert ? 'checked' : ''}
+                           onchange="unitTypes[${idx}].specialAlert = this.checked" />
+                    Alert
+                </label>
+                <button class="unit-type-delete" onclick="removeUnitType(${idx})" title="Remove">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    function addUnitType() {
+        unitTypes.push({ pattern: '', label: '', emoji: '🔹', specialAlert: false });
+        renderUnitTypes();
+        // Focus the new pattern input
+        const inputs = document.querySelectorAll('.unit-type-row input[type="text"]');
+        if (inputs.length) inputs[inputs.length - 3].focus();
+    }
+
+    function removeUnitType(idx) {
+        unitTypes.splice(idx, 1);
+        renderUnitTypes();
+    }
+
+    function updateAlertOptionsVisibility() {
+        ['New', 'Escalation', 'Special'].forEach(type => {
+            const enabled = document.getElementById(`alert${type}Enabled`).checked;
+            const options = document.getElementById(`alert${type}Options`);
+            if (options) options.classList.toggle('disabled', !enabled);
+        });
+    }
 
     async function loadNotifs() {
+        populateSoundSelects();
+
         appConfig = await fetchConfig();
         if (!appConfig.notifications) {
             appConfig.notifications = {
@@ -219,9 +467,13 @@
                 pushoverAppToken: "",
                 vehicleThreshold: 5,
                 timezone: "America/Vancouver",
-                pushoverSoundNormal: "pushover",
-                pushoverSoundHigh: "siren",
-                helicopterAlert: { enabled: false, unitPattern: "S" }
+                checkIntervalSeconds: 60,
+                alerts: {
+                    new: { enabled: true, pushoverSound: "pushover", pushoverPriority: 0 },
+                    escalation: { enabled: true, pushoverSound: "pushover", pushoverPriority: 0 },
+                    specialUnit: { enabled: true, pushoverSound: "siren", pushoverPriority: 1 }
+                },
+                unitTypes: []
             };
         }
 
@@ -230,6 +482,7 @@
         document.getElementById('pushoverUserKey').value = notif.pushoverUserKey || "";
         document.getElementById('pushoverAppToken').value = notif.pushoverAppToken || "";
         document.getElementById('vehicleThreshold').value = notif.vehicleThreshold || 5;
+        document.getElementById('checkIntervalSeconds').value = notif.checkIntervalSeconds || 60;
 
         // Timezone
         const tzSelect = document.getElementById('timezone');
@@ -238,41 +491,65 @@
             tzSelect.value = savedTz;
         }
 
-        // Pushover Sounds
-        document.getElementById('pushoverSoundNormal').value = notif.pushoverSoundNormal || "pushover";
-        document.getElementById('pushoverSoundHigh').value = notif.pushoverSoundHigh || "siren";
+        // Alert types
+        const alerts = notif.alerts || {};
+        const newAlert = alerts.new || { enabled: true, pushoverSound: "pushover" };
+        const escAlert = alerts.escalation || { enabled: true, pushoverSound: "pushover" };
+        const specAlert = alerts.specialUnit || { enabled: true, pushoverSound: "siren" };
 
-        // Helicopter
-        const heli = notif.helicopterAlert || {};
-        document.getElementById('helicopterEnabled').checked = heli.enabled || false;
-        document.getElementById('helicopterPattern').value = heli.unitPattern || "S";
-        updateHeliPatternVisibility();
+        document.getElementById('alertNewEnabled').checked = newAlert.enabled !== false;
+        document.getElementById('alertNewSound').value = newAlert.pushoverSound || "pushover";
+
+        document.getElementById('alertEscalationEnabled').checked = escAlert.enabled !== false;
+        document.getElementById('alertEscalationSound').value = escAlert.pushoverSound || "pushover";
+
+        document.getElementById('alertSpecialEnabled').checked = specAlert.enabled !== false;
+        document.getElementById('alertSpecialSound').value = specAlert.pushoverSound || "siren";
+
+        updateAlertOptionsVisibility();
+
+        // Unit types
+        unitTypes = notif.unitTypes || [];
+        renderUnitTypes();
     }
 
-    function updateHeliPatternVisibility() {
-        const enabled = document.getElementById('helicopterEnabled').checked;
-        document.getElementById('heliPatternGroup').classList.toggle('disabled', !enabled);
-    }
-
+    // Listen for toggle changes
     document.addEventListener('change', function(e) {
-        if (e.target.id === 'helicopterEnabled') {
-            updateHeliPatternVisibility();
+        if (e.target.id.startsWith('alert') && e.target.id.endsWith('Enabled')) {
+            updateAlertOptionsVisibility();
         }
     });
 
     async function saveNotifs() {
+        const intervalVal = parseInt(document.getElementById('checkIntervalSeconds').value) || 60;
+        const clampedInterval = Math.max(20, Math.min(300, intervalVal));
+        document.getElementById('checkIntervalSeconds').value = clampedInterval;
+
         appConfig.notifications = {
             discordWebhookUrl: document.getElementById('discordWebhookUrl').value.trim(),
             pushoverUserKey: document.getElementById('pushoverUserKey').value.trim(),
             pushoverAppToken: document.getElementById('pushoverAppToken').value.trim(),
             vehicleThreshold: parseInt(document.getElementById('vehicleThreshold').value) || 5,
             timezone: document.getElementById('timezone').value,
-            pushoverSoundNormal: document.getElementById('pushoverSoundNormal').value,
-            pushoverSoundHigh: document.getElementById('pushoverSoundHigh').value,
-            helicopterAlert: {
-                enabled: document.getElementById('helicopterEnabled').checked,
-                unitPattern: document.getElementById('helicopterPattern').value.trim() || "S"
-            }
+            checkIntervalSeconds: clampedInterval,
+            alerts: {
+                new: {
+                    enabled: document.getElementById('alertNewEnabled').checked,
+                    pushoverSound: document.getElementById('alertNewSound').value,
+                    pushoverPriority: 0
+                },
+                escalation: {
+                    enabled: document.getElementById('alertEscalationEnabled').checked,
+                    pushoverSound: document.getElementById('alertEscalationSound').value,
+                    pushoverPriority: 0
+                },
+                specialUnit: {
+                    enabled: document.getElementById('alertSpecialEnabled').checked,
+                    pushoverSound: document.getElementById('alertSpecialSound').value,
+                    pushoverPriority: 1
+                }
+            },
+            unitTypes: unitTypes.filter(ut => ut.pattern && ut.label)
         };
 
         await saveConfig(appConfig);

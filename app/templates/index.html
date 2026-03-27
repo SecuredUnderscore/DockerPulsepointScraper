@@ -27,8 +27,8 @@
 
     <div style="padding: 1rem; border: 1px dashed var(--border); border-radius: 8px; background: rgba(0,0,0,0.2);">
         <pre><code style="color: #a6e22e">Scanner Process:</code> <span style="color: #66d9ef">RUNNING</span>
-<code style="color: #a6e22e">Last Poll:</code>       <span style="color: #e6db74" id="last-poll">1m ago</span>
-<code style="color: #a6e22e">Interval:</code>        <span style="color: #fd971f">60 seconds</span></pre>
+<code style="color: #a6e22e">Last Poll:</code>       <span style="color: #e6db74" id="last-poll">0s ago</span>
+<code style="color: #a6e22e">Interval:</code>        <span style="color: #fd971f" id="interval-display">60 seconds</span></pre>
     </div>
 </div>
 {% endblock %}
@@ -45,12 +45,14 @@
 
         document.getElementById('stat-geofences').innerText = conf.polygons ? conf.polygons.length : 0;
 
+        const interval = (conf.notifications && conf.notifications.checkIntervalSeconds) || 60;
+        document.getElementById('interval-display').innerText = interval + ' seconds';
+
+        let elapsed = 0;
         setInterval(() => {
-            const el = document.getElementById('last-poll');
-            let secs = parseInt(el.innerText) || 60;
-            secs++;
-            if (secs > 60) secs = 0;
-            el.innerText = secs + "s ago";
+            elapsed++;
+            if (elapsed > interval) elapsed = 0;
+            document.getElementById('last-poll').innerText = elapsed + "s ago";
         }, 1000);
     }
     loadStats();
