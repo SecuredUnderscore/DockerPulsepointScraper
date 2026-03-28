@@ -14,4 +14,4 @@ ENV FLASK_APP=app.main:app
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV PYTHONUNBUFFERED=1
 
-CMD ["flask", "run", "--host", "0.0.0.0", "--port", "5020", "--no-reload]
+CMD ["flask", "run", "--host", "0.0.0.0", "--port", "5020", "--no-reload"]
