@@ -156,6 +156,31 @@
             </div>
         </div>
     </div>
+
+    <!-- Location Moved Alert -->
+    <div class="alert-type-card">
+        <div class="alert-type-header">
+            <div class="alert-type-info">
+                <span class="alert-icon" style="background: rgba(155, 89, 182, 0.15); color: #9b59b6;">📍</span>
+                <div>
+                    <h3>Location Moved</h3>
+                    <small class="text-muted">Triggered when an incident's coordinates change.</small>
+                </div>
+            </div>
+            <label class="toggle-label" for="alertLocationEnabled" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0;">
+                <div class="toggle-switch">
+                    <input type="checkbox" id="alertLocationEnabled" checked />
+                    <span class="toggle-slider"></span>
+                </div>
+            </label>
+        </div>
+        <div class="alert-type-options" id="alertLocationOptions">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Pushover Sound</label>
+                <select id="alertLocationSound" class="pushover-sound-select"></select>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Unit Types Configuration -->
@@ -449,7 +474,7 @@
     }
 
     function updateAlertOptionsVisibility() {
-        ['New', 'Escalation', 'Special'].forEach(type => {
+        ['New', 'Escalation', 'Special', 'Location'].forEach(type => {
             const enabled = document.getElementById(`alert${type}Enabled`).checked;
             const options = document.getElementById(`alert${type}Options`);
             if (options) options.classList.toggle('disabled', !enabled);
@@ -496,6 +521,7 @@
         const newAlert = alerts.new || { enabled: true, pushoverSound: "pushover" };
         const escAlert = alerts.escalation || { enabled: true, pushoverSound: "pushover" };
         const specAlert = alerts.specialUnit || { enabled: true, pushoverSound: "siren" };
+        const locAlert = alerts.locationMoved || { enabled: true, pushoverSound: "pushover" };
 
         document.getElementById('alertNewEnabled').checked = newAlert.enabled !== false;
         document.getElementById('alertNewSound').value = newAlert.pushoverSound || "pushover";
@@ -505,6 +531,9 @@
 
         document.getElementById('alertSpecialEnabled').checked = specAlert.enabled !== false;
         document.getElementById('alertSpecialSound').value = specAlert.pushoverSound || "siren";
+
+        document.getElementById('alertLocationEnabled').checked = locAlert.enabled !== false;
+        document.getElementById('alertLocationSound').value = locAlert.pushoverSound || "pushover";
 
         updateAlertOptionsVisibility();
 
@@ -547,6 +576,11 @@
                     enabled: document.getElementById('alertSpecialEnabled').checked,
                     pushoverSound: document.getElementById('alertSpecialSound').value,
                     pushoverPriority: 1
+                },
+                locationMoved: {
+                    enabled: document.getElementById('alertLocationEnabled').checked,
+                    pushoverSound: document.getElementById('alertLocationSound').value,
+                    pushoverPriority: 0
                 }
             },
             unitTypes: unitTypes.filter(ut => ut.pattern && ut.label)

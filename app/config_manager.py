@@ -29,6 +29,11 @@ DEFAULT_CONFIG = {
                 "enabled": True,
                 "pushoverSound": "siren",
                 "pushoverPriority": 1
+            },
+            "locationMoved": {
+                "enabled": True,
+                "pushoverSound": "pushover",
+                "pushoverPriority": 0
             }
         },
         "unitTypes": [

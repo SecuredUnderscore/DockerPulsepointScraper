@@ -117,7 +117,8 @@ def build_description(incident, tz_name):
 
 def send_discord_notification(webhook_url, incident, tz_name, alert_type='new',
                               units_count=None, unit_breakdown='',
-                              special_units=None, special_label=''):
+                              special_units=None, special_label='',
+                              old_lat=None, old_lon=None):
     if not webhook_url:
         return
 
@@ -127,6 +128,8 @@ def send_discord_notification(webhook_url, incident, tz_name, alert_type='new',
         title = f"🚨 {special_label} Dispatched: {inc_type}"
     elif alert_type == 'escalation':
         title = f"⚠️ Incident Escalation: {inc_type} ({units_count} Units)"
+    elif alert_type == 'location':
+        title = f"📍 Location Moved: {inc_type}"
     else:
         title = f"🔴 New Incident: {inc_type}"
 
@@ -144,14 +147,20 @@ def send_discord_notification(webhook_url, incident, tz_name, alert_type='new',
     if alert_type == 'special' and special_units:
         description += f"**🚨 {special_label}:** {', '.join(special_units)}\n"
 
+    if alert_type == 'location' and old_lat and old_lon:
+        old_maps = google_maps_url(old_lat, old_lon)
+        description += f"**📌 Previous:** [Old Location]({old_maps})\n"
+
     if maps_link:
         description += f"**🗺️ Map:** [Google Maps]({maps_link})\n"
 
-    # Color: orange for special, yellow for escalation, red for new
+    # Color: orange for special, yellow for escalation, purple for location, red for new
     if alert_type == 'special':
         color = 0xFF8C00  # Dark orange
     elif alert_type == 'escalation':
         color = 0xFFAA00  # Amber
+    elif alert_type == 'location':
+        color = 0x9B59B6  # Purple
     else:
         color = 0xFF0000  # Red
 
@@ -177,7 +186,8 @@ def send_discord_notification(webhook_url, incident, tz_name, alert_type='new',
 def send_pushover_notification(user_key, app_token, incident, tz_name,
                                alert_type='new', units_count=None,
                                unit_breakdown='', special_units=None,
-                               special_label='', priority=0, sound="pushover"):
+                               special_label='', priority=0, sound="pushover",
+                               old_lat=None, old_lon=None):
     if not user_key or not app_token:
         return
 
@@ -187,6 +197,8 @@ def send_pushover_notification(user_key, app_token, incident, tz_name,
         title = f"🚨 {special_label} Dispatched: {inc_type}"
     elif alert_type == 'escalation':
         title = f"Incident Escalation: {inc_type} ({units_count} Units)"
+    elif alert_type == 'location':
+        title = f"📍 Location Moved: {inc_type}"
     else:
         title = f"New Incident: {inc_type}"
 
@@ -203,6 +215,10 @@ def send_pushover_notification(user_key, app_token, incident, tz_name,
 
     if alert_type == 'special' and special_units:
         message += f"{special_label}: {', '.join(special_units)}\n"
+
+    if alert_type == 'location' and old_lat and old_lon:
+        old_maps = google_maps_url(old_lat, old_lon)
+        message += f"Previous: {old_maps}\n"
 
     if maps_link:
         message += f"Map: {maps_link}"
@@ -302,4 +318,28 @@ def notify_special_unit(incident, special_unit_ids, special_label, unit_breakdow
     send_pushover_notification(push_user, push_app, incident, tz_name,
                                alert_type='special', special_units=special_unit_ids,
                                special_label=special_label, unit_breakdown=unit_breakdown,
+                               priority=priority, sound=sound)
+
+
+def notify_location_moved(incident, old_lat, old_lon, unit_breakdown=''):
+    notif_config = _get_notif_config()
+    alerts = notif_config.get('alerts', {})
+    loc_alert = alerts.get('locationMoved', {})
+
+    if not loc_alert.get('enabled', True):
+        return
+
+    tz_name = notif_config.get('timezone', 'UTC')
+    discord_url = notif_config.get('discordWebhookUrl')
+    push_user = notif_config.get('pushoverUserKey')
+    push_app = notif_config.get('pushoverAppToken')
+    sound = loc_alert.get('pushoverSound', 'pushover')
+    priority = loc_alert.get('pushoverPriority', 0)
+
+    send_discord_notification(discord_url, incident, tz_name,
+                              alert_type='location', unit_breakdown=unit_breakdown,
+                              old_lat=old_lat, old_lon=old_lon)
+    send_pushover_notification(push_user, push_app, incident, tz_name,
+                               alert_type='location', unit_breakdown=unit_breakdown,
+                               old_lat=old_lat, old_lon=old_lon,
                                priority=priority, sound=sound)

@@ -7,7 +7,7 @@ from app.config_manager import load_config
 from app.geo import is_point_in_polygons
 from app.notifications import (
     notify_new_incident, notify_incident_escalation, notify_special_unit,
-    match_unit_type, classify_units, format_unit_breakdown
+    notify_location_moved, match_unit_type, classify_units, format_unit_breakdown
 )
 
 # State memory
@@ -69,10 +69,12 @@ def process_incidents():
                 KNOWN_INCIDENTS[inc_id] = {
                     'notified_new': True,
                     'reported_units': active_units_count,
-                    'escalated': False,
+                    'last_escalation_units': 0,  # Unit count at last escalation trigger
                     'special_notified': set(),  # Track which special types we've notified
                     'classification': classification,
-                    'last_escalation_classification': None
+                    'last_escalation_classification': None,
+                    'latitude': lat,
+                    'longitude': lon
                 }
                 print(f"New Incident Detected! {inc_id} ({inc_type}) — {unit_breakdown}")
                 notify_new_incident(inc, unit_breakdown=unit_breakdown)
@@ -83,14 +85,16 @@ def process_incidents():
             prev_classification = state.get('classification', {})
             state['classification'] = classification
 
-            # Check for Escalation Condition
-            if active_units_count >= threshold and not state.get('escalated'):
+            # Check for Escalation Condition (repeating threshold)
+            # Triggers every time unit count increases by >= threshold from the last trigger point
+            last_esc_units = state.get('last_escalation_units', 0)
+            if active_units_count >= threshold and (active_units_count - last_esc_units) >= threshold:
                 # Build breakdown with delta markers from previous state
                 last_esc = state.get('last_escalation_classification') or prev_classification
                 esc_breakdown = format_unit_breakdown(classification, last_esc)
-                print(f"Escalation condition met for {inc_id}. {active_units_count} units. {esc_breakdown}")
+                print(f"Escalation condition met for {inc_id}. {active_units_count} units (prev trigger at {last_esc_units}). {esc_breakdown}")
                 notify_incident_escalation(inc, active_units_count, unit_breakdown=esc_breakdown)
-                state['escalated'] = True
+                state['last_escalation_units'] = active_units_count
                 state['last_escalation_classification'] = dict(classification)
 
             # Check for Special Unit Types
@@ -105,6 +109,16 @@ def process_incidents():
             # Keep highest count
             if active_units_count > state['reported_units']:
                 state['reported_units'] = active_units_count
+
+            # Check for Location Moved
+            old_lat = state.get('latitude')
+            old_lon = state.get('longitude')
+            if lat and lon and old_lat and old_lon:
+                if str(lat) != str(old_lat) or str(lon) != str(old_lon):
+                    print(f"📍 Location moved for {inc_id}: ({old_lat},{old_lon}) → ({lat},{lon})")
+                    notify_location_moved(inc, old_lat, old_lon, unit_breakdown=unit_breakdown)
+                    state['latitude'] = lat
+                    state['longitude'] = lon
 
 # Keep a module-level reference so the scheduler isn't garbage collected
 _scheduler = None
