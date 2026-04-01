@@ -36,6 +36,11 @@ DEFAULT_CONFIG = {
                 "pushoverPriority": 0
             }
         },
+        "webhook": {
+            "enabled": False,
+            "url": "",
+            "method": "POST"
+        },
         "unitTypes": [
             {"pattern": "A", "label": "Ambulance", "emoji": "\U0001f691", "specialAlert": False},
             {"pattern": "B", "label": "Supervisor", "emoji": "\U0001f454", "specialAlert": False},

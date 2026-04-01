@@ -1,3 +1,4 @@
+import json
 import re
 import requests
 from datetime import datetime, timezone, timedelta
@@ -343,3 +344,38 @@ def notify_location_moved(incident, old_lat, old_lon, unit_breakdown=''):
                                alert_type='location', unit_breakdown=unit_breakdown,
                                old_lat=old_lat, old_lon=old_lon,
                                priority=priority, sound=sound)
+
+
+def send_webhook_update(incident):
+    """Send a lightweight JSON webhook on any incident change."""
+    notif_config = _get_notif_config()
+    webhook_config = notif_config.get('webhook', {})
+
+    if not webhook_config.get('enabled', False):
+        return
+
+    url = webhook_config.get('url', '').strip()
+    if not url:
+        return
+
+    method = webhook_config.get('method', 'POST').upper()
+    if method not in ('POST', 'PUT'):
+        method = 'POST'
+
+    payload = {
+        "incident_id": incident.get('ID', ''),
+        "latitude": incident.get('Latitude'),
+        "longitude": incident.get('Longitude'),
+        "timestamp": datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    }
+
+    try:
+        if method == 'PUT':
+            resp = requests.put(url, json=payload)
+        else:
+            resp = requests.post(url, json=payload)
+
+        if not resp.ok:
+            print(f"Webhook {method} returned {resp.status_code}: {resp.text}")
+    except Exception as e:
+        print(f"Error sending webhook: {e}")

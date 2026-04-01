@@ -199,6 +199,48 @@
     </button>
 </div>
 
+<div class="card">
+    <h2><i class="fa-solid fa-link" style="color: var(--secondary); margin-right: 0.5rem;"></i>Webhook</h2>
+    <p class="text-muted" style="margin-bottom: 1.5rem; margin-top: 0.5rem;">
+        Send a POST or PUT request to an external URL on <strong>any</strong> change to an incident
+        (e.g. a unit dispatched, cleared, location update, etc.).
+    </p>
+
+    <div class="alert-type-card">
+        <div class="alert-type-header">
+            <div class="alert-type-info">
+                <span class="alert-icon" style="background: rgba(52, 152, 219, 0.15); color: #3498db;">🔗</span>
+                <div>
+                    <h3>Enable Webhook</h3>
+                    <small class="text-muted">Fire on every incident data change.</small>
+                </div>
+            </div>
+            <label class="toggle-label" for="webhookEnabled" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0;">
+                <div class="toggle-switch">
+                    <input type="checkbox" id="webhookEnabled" />
+                    <span class="toggle-slider"></span>
+                </div>
+            </label>
+        </div>
+        <div class="alert-type-options" id="webhookOptions">
+            <div class="form-group">
+                <label>URL</label>
+                <input type="text" id="webhookUrl" placeholder="https://example.com/api/incidents" />
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>HTTP Method</label>
+                <select id="webhookMethod">
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                </select>
+            </div>
+            <small class="text-muted" style="display: block; margin-top: 0.75rem;">
+                Payload: <code style="background: rgba(0,0,0,0.3); padding: 0.15rem 0.4rem; border-radius: 4px;">{ "incident_id", "latitude", "longitude", "timestamp" }</code>
+            </small>
+        </div>
+    </div>
+</div>
+
 <button class="btn" style="width: 100%" onclick="saveNotifs()">Save Notifications</button>
 {% endblock %}
 
@@ -540,6 +582,13 @@
         // Unit types
         unitTypes = notif.unitTypes || [];
         renderUnitTypes();
+
+        // Webhook
+        const wh = notif.webhook || { enabled: false, url: '', method: 'POST' };
+        document.getElementById('webhookEnabled').checked = wh.enabled === true;
+        document.getElementById('webhookUrl').value = wh.url || '';
+        document.getElementById('webhookMethod').value = wh.method || 'POST';
+        updateWebhookVisibility();
     }
 
     // Listen for toggle changes
@@ -547,7 +596,16 @@
         if (e.target.id.startsWith('alert') && e.target.id.endsWith('Enabled')) {
             updateAlertOptionsVisibility();
         }
+        if (e.target.id === 'webhookEnabled') {
+            updateWebhookVisibility();
+        }
     });
+
+    function updateWebhookVisibility() {
+        const enabled = document.getElementById('webhookEnabled').checked;
+        const options = document.getElementById('webhookOptions');
+        if (options) options.classList.toggle('disabled', !enabled);
+    }
 
     async function saveNotifs() {
         const intervalVal = parseInt(document.getElementById('checkIntervalSeconds').value) || 60;
@@ -582,6 +640,11 @@
                     pushoverSound: document.getElementById('alertLocationSound').value,
                     pushoverPriority: 0
                 }
+            },
+            webhook: {
+                enabled: document.getElementById('webhookEnabled').checked,
+                url: document.getElementById('webhookUrl').value.trim(),
+                method: document.getElementById('webhookMethod').value
             },
             unitTypes: unitTypes.filter(ut => ut.pattern && ut.label)
         };

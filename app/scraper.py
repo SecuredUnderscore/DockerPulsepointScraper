@@ -1,3 +1,5 @@
+import json
+import hashlib
 import time
 import logging
 from datetime import datetime
@@ -7,7 +9,8 @@ from app.config_manager import load_config
 from app.geo import is_point_in_polygons
 from app.notifications import (
     notify_new_incident, notify_incident_escalation, notify_special_unit,
-    notify_location_moved, match_unit_type, classify_units, format_unit_breakdown
+    notify_location_moved, send_webhook_update, match_unit_type, classify_units,
+    format_unit_breakdown
 )
 
 # State memory
@@ -64,6 +67,9 @@ def process_incidents():
             classification = classify_units(units, unit_types) if unit_types else {}
             unit_breakdown = format_unit_breakdown(classification)
 
+            # Compute a hash of the raw incident data to detect ANY change
+            inc_hash = hashlib.md5(json.dumps(inc, sort_keys=True, default=str).encode()).hexdigest()
+
             if inc_id not in KNOWN_INCIDENTS:
                 # New Incident!
                 KNOWN_INCIDENTS[inc_id] = {
@@ -74,10 +80,12 @@ def process_incidents():
                     'classification': classification,
                     'last_escalation_classification': None,
                     'latitude': lat,
-                    'longitude': lon
+                    'longitude': lon,
+                    'raw_hash': inc_hash
                 }
                 print(f"New Incident Detected! {inc_id} ({inc_type}) — {unit_breakdown}")
                 notify_new_incident(inc, unit_breakdown=unit_breakdown)
+                send_webhook_update(inc)
 
             state = KNOWN_INCIDENTS[inc_id]
 
@@ -119,6 +127,12 @@ def process_incidents():
                     notify_location_moved(inc, old_lat, old_lon, unit_breakdown=unit_breakdown)
                     state['latitude'] = lat
                     state['longitude'] = lon
+
+            # Webhook: fire on ANY change to incident data
+            if inc_hash != state.get('raw_hash'):
+                print(f"🔔 Webhook triggered for {inc_id} (data changed)")
+                send_webhook_update(inc)
+                state['raw_hash'] = inc_hash
 
 # Keep a module-level reference so the scheduler isn't garbage collected
 _scheduler = None
